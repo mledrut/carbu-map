@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+    font-family: 'Gabarito', sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+  
+    color-scheme: light dark;
+    color: rgba(255, 255, 255, 0.87);
+    background-color: #F0F0F0;
+  
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+  }
+body{
+    margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6{
+    margin: 0;
+}
+
+.container{
+    padding: 0 10px;
+}
+  
+  @media (prefers-color-scheme: light) {
+    :root {
+      color: #213547;
+      background-color: #F0F0F0;
+    }
+  }
+  
+  
+
+#root {
+    // max-width: 1280px;
+    // text-align: center;
+  }
+
+.loader{
+    animation: spin 1s linear infinite; /* Animation infinie nommée "spin" */
+
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); } /* Rotation de 0 degrés au début */
+    100% { transform: rotate(360deg); } /* Rotation de 360 degrés à la fin (un tour complet) */
+  }
