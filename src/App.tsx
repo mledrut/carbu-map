@@ -51,7 +51,6 @@ function App() {
 
   function handleListItemClick(lat: number, lon: number) {
     setSelectedStation([lat, lon])
-    // console.log([lat, lon])
   }
 
   function displayList() {
@@ -60,7 +59,26 @@ function App() {
     } else {
       const items = apiResponse.results.map((item) => {
 
-        const priceToDisplay = item[filterPosition + '_prix'] || '';
+        let priceToDisplay = '';
+        switch (filterPosition) {
+          case 'e10':
+            priceToDisplay = item.e10_prix;
+            break;
+          case 'sp98':
+            priceToDisplay = item.sp98_prix;
+            break;
+          case 'gplc':
+            priceToDisplay = item.gplc_prix;
+            break;
+          case 'sp95':
+            priceToDisplay = item.sp95_prix;
+            break;
+          case 'gazole':
+            priceToDisplay = item.gazole_prix;
+            break;
+          default:
+            priceToDisplay = '';
+        }        
         
         const distanceInKm = calculateDistance(
           item.geom.lat,
@@ -100,7 +118,6 @@ function App() {
     }
   }
   
-
   async function getStations() {
 
     if (!geoPosition && !filterPosition) {
@@ -108,14 +125,13 @@ function App() {
     } else {
       setLoadingApi(true)
       const url = 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records'
-      const lon = geoPosition.coords.longitude;
-      const lat = geoPosition.coords.latitude;
+      const lon = geoPosition && geoPosition.coords.longitude;
+      const lat = geoPosition && geoPosition.coords.latitude;
       const km = 5;
       const limit = 100
       const type = filterPosition
     
       const apiUrl = `${url}?where=distance(geom, geom'POINT(${lon} ${lat})',${km}km) and ${type}_prix is not null&order_by=${type}_prix&limit=${limit}`
-      console.log(apiUrl)
     
       try {
         const response = await fetch(apiUrl);
@@ -125,7 +141,6 @@ function App() {
     
         const data = await response.json();
         setApiResponse(data);
-        console.log(data)
         setLoadingApi(false)
       } catch (error) {
         console.error('Erreur lors de la requête API :', error);
@@ -145,8 +160,6 @@ function App() {
       setStepErrors(null)
       getStations()
     }
-    // console.log("geoPosition : " + geoPosition)  
-    // console.log("numberPosition : " + numberPosition)  
   }, [geoPosition, filterPosition]);
 
   const geoLoading = async () => {
@@ -155,7 +168,6 @@ function App() {
       const NavigatorGeoPosition = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject);
       });
-      console.log(NavigatorGeoPosition)
       setGeoPosition(NavigatorGeoPosition);
       setNumberPosition([NavigatorGeoPosition.coords.latitude, NavigatorGeoPosition.coords.longitude])
       setLoadingGeoloc(false)

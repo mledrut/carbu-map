@@ -13,24 +13,24 @@ type MapProps = {
 
 const Map = ({geoLoc, stations, selectedStation} : MapProps) => {
 
-    const mapRef = useRef(null);
+    const mapRef = useRef<L.Map>(null);
+    const decalage = -0.006000; // décalge de la map
+    const decalageZoom = -0.001000; // décalge de la map
 
     const mapboxAccessToken = import.meta.env.VITE_JAWG_TOKEN;
     const customTileLayer = `https://tile.jawg.io/jawg-light/{z}/{x}/{y}{r}.png?access-token=${mapboxAccessToken}`;
 
     useEffect(() => {
-        if (mapRef.current) {
-            mapRef.current.flyTo(geoLoc, 13); 
+        if (mapRef.current && geoLoc) {
+            mapRef.current.flyTo([geoLoc[0] - decalage, geoLoc[1]], 13); 
           }
-        console.log(stations)
-    }, [geoLoc]);
+    }, [geoLoc, decalage]);
 
     useEffect(() => {
-        console.log(selectedStation)
         if (mapRef.current && selectedStation) {
-          mapRef.current.flyTo(selectedStation, 15); 
+          mapRef.current.flyTo([selectedStation && selectedStation[0] - decalageZoom, selectedStation && selectedStation[1]], 15); 
         }
-      }, [selectedStation]);
+      }, [selectedStation, decalageZoom]);
 
 
     function LocationMarker() {
