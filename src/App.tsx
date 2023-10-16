@@ -77,7 +77,28 @@ function App() {
             priceToDisplay = item.gazole_prix;
             break;
           default:
-            priceToDisplay = '';
+            priceToDisplay = 'Pas de prix';
+        }     
+        
+        let majToDisplay = '';
+        switch (filterPosition) {
+          case 'e10':
+            majToDisplay = item.e10_maj;
+            break;
+          case 'sp98':
+            majToDisplay = item.sp98_maj;
+            break;
+          case 'gplc':
+            majToDisplay = item.gplc_maj;
+            break;
+          case 'sp95':
+            majToDisplay = item.sp95_maj;
+            break;
+          case 'gazole':
+            majToDisplay = item.gazole_maj;
+            break;
+          default:
+            majToDisplay = 'Pas de maj';
         }        
         
         const distanceInKm = calculateDistance(
@@ -100,6 +121,7 @@ function App() {
               </div>
               <div className="right">
                 <p className='km'>{distanceInKm + " km"}</p>
+                <p className='maj'>{majToDisplay}</p>
 
               </div>
             </div>
@@ -216,6 +238,8 @@ function App() {
       />
 
       <div className="list">
+        <div className="cache cache-bot"></div>
+        <div className="cache cache-top"></div>
         <div className="container">
           {stepErrors || loadingApi ? 
             <div className="empty">
