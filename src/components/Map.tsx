@@ -55,7 +55,7 @@ const Map = ({geoLoc, stations, selectedStation} : MapProps) => {
 
     return (
         <MapContainer
-            style={{ width: '100%', height: 'calc(50vh - 50px)'  }}
+            style={{ width: '100%', height: 'calc(50svh - 50px)'  }}
             center={geoLoc || [0, 0]}
             zoom={13}
             scrollWheelZoom={true}
