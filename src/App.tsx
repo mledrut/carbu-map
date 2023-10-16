@@ -3,26 +3,96 @@ import APIResponse from './components/apiTypes';
 import { LocateFixed, Loader2 } from 'lucide-react';
 import Map from './components/Map.js'
 import './styles/Home.scss'
+import './styles/List.scss'
 
 
 
 function App() {
 
-  const [position, setPosition] = useState<[number, number] | null>(null);
-  const [prixCarburants, setPrixCarburants] = useState<APIResponse | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [geoPosition, setGeoPosition] = useState<GeolocationPosition | null>(null);
+  const [numberPosition, setNumberPosition] = useState<[number, number] | null>([50.6310806, 3.0468978]) // De base a Lille
+  const [selectedStation, setSelectedStation] = useState<[number, number] | null>(null)
 
-  const [filterPosition, setFilterPosition] = useState<string>("gazole");
+  const [apiResponse, setApiResponse] = useState<APIResponse | null>(null);
+  const [stepErrors, setStepErrors] = useState<string | null>(null)
+  const [loadingGeoloc, setLoadingGeoloc] = useState<boolean>(false);
+  const [loadingApi, setLoadingApi] = useState<boolean>(false);
+
+  const [filterPosition, setFilterPosition] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
 
+  function calculateDistance(point1: number, point2: number, pointA: number, pointB: number) {
+
+    function toRadians(degrees: number) {
+      return degrees * (Math.PI / 180);
+    }
+    // Rayon de la Terre en kilomètres
+    const earthRadius = 6371;
+  
+    // Convertir les degrés en radians
+    const lat1 = toRadians(point1);
+    const lon1 = toRadians(point2);
+    const lat2 = toRadians(pointA);
+    const lon2 = toRadians(pointB);
+  
+    // Différences de latitude et de longitude
+    const dlat = lat2 - lat1;
+    const dlon = lon2 - lon1;
+  
+    // Formule Haversine
+    const a = Math.sin(dlat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dlon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  
+    // Distance en kilomètres
+    const distance = earthRadius * c;
+  
+    return distance.toFixed(2);
+  }
+
+  function handleListItemClick(lat: number, lon: number) {
+    setSelectedStation([lat, lon])
+    // console.log([lat, lon])
+  }
+
   function displayList() {
-    if (!prixCarburants) {
+    if (!apiResponse) {
       return
     } else {
-      const items = prixCarburants.results.map((item) => {
+      const items = apiResponse.results.map((item) => {
+
+        const priceToDisplay = item[filterPosition + '_prix'] || '';
+        
+        const distanceInKm = calculateDistance(
+          item.geom.lat,
+          item.geom.lon,
+          numberPosition?.[0] ?? 0,
+          numberPosition?.[1] ?? 0
+        );
         return(
-          <li key={item.id}>
-            <h4>{item.ville}</h4>
+          <li key={item.id} onClick={() => handleListItemClick(item.geom.lat, item.geom.lon)}>
+            <div className="top">
+              <div className="left">
+                <div className="price-box">
+                  <span className={filterPosition || ""}>{filterPosition}</span>
+                  <p className='price'>{priceToDisplay + "€"}</p>
+                </div>
+                <p>{item.adresse}</p>
+                <p>{item.ville}</p>
+
+              </div>
+              <div className="right">
+                <p className='km'>{distanceInKm + " km"}</p>
+
+              </div>
+            </div>
+            <div className="bottom">
+              <div className="left">
+
+              </div>
+              <div className="right">
+                
+              </div>
+            </div>
           </li>
         )
       })
@@ -33,15 +103,19 @@ function App() {
 
   async function getStations() {
 
-    if (!position) {
+    if (!geoPosition && !filterPosition) {
       return
     } else {
-      const lon = position.coords.longitude;
-      const lat = position.coords.latitude;
-      const km = 10;
-      const limit = 10;
+      setLoadingApi(true)
+      const url = 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records'
+      const lon = geoPosition.coords.longitude;
+      const lat = geoPosition.coords.latitude;
+      const km = 5;
+      const limit = 100
+      const type = filterPosition
     
-      const apiUrl = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?where=distance(geom%2C%20geom%27POINT(${lon} ${lat})%27%2C%20${km}km)&limit=${limit}`
+      const apiUrl = `${url}?where=distance(geom, geom'POINT(${lon} ${lat})',${km}km) and ${type}_prix is not null&order_by=${type}_prix&limit=${limit}`
+      console.log(apiUrl)
     
       try {
         const response = await fetch(apiUrl);
@@ -50,30 +124,44 @@ function App() {
         }
     
         const data = await response.json();
-        setPrixCarburants(data);
+        setApiResponse(data);
         console.log(data)
+        setLoadingApi(false)
       } catch (error) {
         console.error('Erreur lors de la requête API :', error);
+        setLoadingApi(false)
       }
     } 
   }
 
 
   useEffect(() => {
-          getStations()        
-  }, [position]);
+
+    if (!geoPosition) {
+      setStepErrors('Entrez votre adresse ou geolocalisé vous')
+    } else if (!filterPosition) {
+      setStepErrors('Sélectionnez un type de carburant')
+    } else {
+      setStepErrors(null)
+      getStations()
+    }
+    // console.log("geoPosition : " + geoPosition)  
+    // console.log("numberPosition : " + numberPosition)  
+  }, [geoPosition, filterPosition]);
 
   const geoLoading = async () => {
-    setLoading(true);
+    setLoadingGeoloc(true);
     try {
-      const geoPosition = await new Promise<GeolocationPosition>((resolve, reject) => {
+      const NavigatorGeoPosition = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject);
       });
-      setPosition(geoPosition);
-      setLoading(false)
+      console.log(NavigatorGeoPosition)
+      setGeoPosition(NavigatorGeoPosition);
+      setNumberPosition([NavigatorGeoPosition.coords.latitude, NavigatorGeoPosition.coords.longitude])
+      setLoadingGeoloc(false)
     } catch (error) {
       console.error('Erreur lors de la requête API :', error);
-      setLoading(false)
+      setLoadingGeoloc(false)
     }
   }
 
@@ -92,7 +180,7 @@ function App() {
         <div className="container">
           <div className="search-bar">
             <button onClick={() => geoLoading()}>
-              {!loading ? <LocateFixed /> : <Loader2 className='loader'/>}
+              {!loadingGeoloc ? <LocateFixed /> : <Loader2 className='loader'/>}
             </button>
             <input placeholder='Votre Adresse' type="search" id="site-search" name="q" />
           </div>
@@ -109,35 +197,25 @@ function App() {
 
       </div>
 
-      <Map getPosition={() => position} />
+      <Map
+        geoLoc={numberPosition}
+        stations={apiResponse}
+        selectedStation={selectedStation}
+      />
 
       <div className="list">
         <div className="container">
+          {stepErrors || loadingApi ? 
+            <div className="empty">
+              <p>{stepErrors && stepErrors}</p>
+              {loadingApi ? <Loader2 className='loader'/> : null}
+            </div> : null
+          }
           {displayList()}
+          
         </div>
       </div>
 
-    
-
-
-    
-
-
-      {position ? (
-        <div>
-          {/* Affichez les données de géolocalisation ici */}
-
-          {prixCarburants ? (
-            <div>
-              {/* Affichez les données de l'API ici */}
-            </div>
-          ) : (
-            <p>En attente des données de l'API...</p>
-          )}
-        </div>
-      ) : (
-        <p>En attente de la localisation...</p>
-      )}
     </div>
   )
 }

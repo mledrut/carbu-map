@@ -1,7 +1,13 @@
 interface Stations {
   id: number;
   ville: string;
-  longitude: number
+  adresse: string;
+  e10_prix: string;
+  longitude: number;
+  geom: {
+    lat: number;
+    lon: number;
+  };
 }
 
 interface PrixCarburant {
