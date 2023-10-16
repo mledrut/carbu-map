@@ -7,6 +7,11 @@ interface Stations {
   sp98_prix: string;
   sp95_prix: string;
   gplc_prix: string;
+  gazole_maj: string;
+  e10_maj: string;
+  sp98_maj: string;
+  sp95_maj: string;
+  gplc_maj: string;
   longitude: number;
   geom: {
     lat: number;
