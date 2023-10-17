@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import APIResponse from './components/apiTypes';
 import { LocateFixed, Loader2 } from 'lucide-react';
 import Map from './components/Map.js'
+import DateFormatter from './components/DateFormat.js';
+
 import './styles/Home.scss'
 import './styles/List.scss'
-
 
 
 function App() {
@@ -107,6 +108,7 @@ function App() {
           numberPosition?.[0] ?? 0,
           numberPosition?.[1] ?? 0
         );
+
         return(
           <li key={item.id} onClick={() => handleListItemClick(item.geom.lat, item.geom.lon)}>
             <div className="top">
@@ -121,7 +123,8 @@ function App() {
               </div>
               <div className="right">
                 <p className='km'>{distanceInKm + " km"}</p>
-                <p className='maj'>{majToDisplay}</p>
+                <p className='maj-text'>Dernière mise a jour</p>
+                <p className='maj-date'><DateFormatter dateStr={majToDisplay} /></p>
 
               </div>
             </div>
@@ -175,9 +178,9 @@ function App() {
   useEffect(() => {
 
     if (!geoPosition) {
-      setStepErrors('Entrez votre adresse ou geolocalisé vous')
+      setStepErrors('Geolocalisez vous ou entrez votre adresse !')
     } else if (!filterPosition) {
-      setStepErrors('Sélectionnez un type de carburant')
+      setStepErrors('Sélectionnez un type de carburant !')
     } else {
       setStepErrors(null)
       getStations()
@@ -238,8 +241,6 @@ function App() {
       />
 
       <div className="list">
-        <div className="cache cache-bot"></div>
-        <div className="cache cache-top"></div>
         <div className="container">
           {stepErrors || loadingApi ? 
             <div className="empty">
