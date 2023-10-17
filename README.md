@@ -1,28 +1,34 @@
-# React + TypeScript + Vite
+# Carbu-Map
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Carbu-Map est une application web qui vous permet de trouver la station service la moins chère à proximité de chez vous.
+Je l'ai développé dans le but d'apprendre TypeScript avec React.
+(Développement en cours)
 
-Currently, two official plugins are available:
+## Démo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+[Démo de l'Application](https://carbu-map.vercel.app/)
 
-## Expanding the ESLint configuration
+## Technologies Utilisées
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- React
+- TypeScript
+- Leaflet
+- Sass
 
-- Configure the top-level `parserOptions` property like this:
+## Fonctionnalités
 
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
-```
+- Recherche de stations service à proximité.
+- Affichage des stations sur une carte interactive.
+- Tri des stations par prix.
+- Affichage des informations détaillées de chaque station.
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
-# carbu-map
+## Comment Utiliser
+
+1. Clonez ce dépôt sur votre machine locale.
+2. Exécutez `npm install` pour installer les dépendances.
+3. Exécutez `npm run dev` pour démarrer l'application en mode développement.
+4. Un Token Jawg est nécessaires dans un .env pour le style de la carte.
+
+## Auteur
+
+Ce projet a été développé par Martin Ledrut.
